@@ -16,7 +16,6 @@ COLUNAS = {
 
 
 def fix_mojibake(s):
-    """Conserta texto UTF-8 que foi lido como Mac Roman (ex.: 'm√£e' -> 'mãe')."""
     if not isinstance(s, str):
         return s
     try:
@@ -26,7 +25,6 @@ def fix_mojibake(s):
 
 
 def parse_meta(x):
-    """Lê o JSON da coluna metadados, tolerando aspas simples e aspas faltando."""
     if pd.isna(x):
         return {}
     x = str(x).strip()
@@ -38,7 +36,7 @@ def parse_meta(x):
         return ast.literal_eval(x)
     except (ValueError, SyntaxError):
         pass
-    # chaves com aspas faltando: {chave": "v"} ou {chave: "v"} -> {"chave": "v"}
+
     x = re.sub(r'([{,]\s*)"?(\w+)"?(\s*:)', r'\1"\2"\3', x)
     return json.loads(x)
 
