@@ -6,7 +6,7 @@ Pipeline em Python que lê uma planilha `.xlsx` com dados bagunçados, limpa e c
 
 ## Contexto
 
-Este projeto nasceu de um **teste de caso técnico** que fiz ao me candidatar a uma vaga de Engenheira de Dados. O desafio era montar um ETL em Python (com pandas) a partir de uma planilha xlsx: ajustar a tipagem das colunas (números, datas, textos) e separar uma coluna em JSON em colunas próprias.
+Este projeto nasceu de um **teste de caso técnico** que fiz ao me candidatar a uma vaga de Engenheira de Dados em 2023. O desafio era montar um ETL em Python (com pandas) a partir de uma planilha xlsx: ajustar a tipagem das colunas (números, datas, textos) e separar uma coluna em JSON em colunas próprias.
 
 Depois do processo, decidi **refazer o exercício do zero** e transformá-lo em um projeto de portfólio: reconstruí a planilha com dados fictícios, corrigi os pontos fracos da minha primeira versão (como a conversão de booleanos, o tratamento de datas e o encoding) e organizei o código em etapas separadas (Extract, Transform, Load), com logging e saída em Parquet.
 
