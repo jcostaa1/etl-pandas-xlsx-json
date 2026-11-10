@@ -47,15 +47,6 @@ A planilha de entrada tinha:
 └── README.md
 ```
 
-## Como rodar
-
-```bash
-pip install pandas openpyxl pyarrow
-python etl_pipeline.py dados_teste.xlsx
-```
-
-Gera o arquivo `dados_transformados.parquet`.
-
 ## Resultado
 
 | Coluna | Tipo final |
