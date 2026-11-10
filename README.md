@@ -42,6 +42,7 @@ The input spreadsheet had:
 .
 ├── database.xlsx     # fictional input data
 ├── etl_pipeline.py      # pipeline script
+├── test_etl.py      # test script
 └── README.md
 ```
 
