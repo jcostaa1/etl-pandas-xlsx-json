@@ -1,6 +1,6 @@
 # ETL with pandas: xlsx with a JSON column → Parquet
 
-A Python pipeline that reads a messy `.xlsx` spreadsheet, cleans it and converts the data types, splits a JSON column into separate columns, and saves the result as Parquet. The data in this project is **fictional**, created for demonstration purposes only.
+A Python pipeline that reads a messy `.xlsx` spreadsheet, cleans it and converts the data types, splits a JSON column into separate columns, and saves the result as Parquet.
 
 ## Context
 
@@ -40,7 +40,7 @@ The input spreadsheet had:
 
 ```
 .
-├── dados_teste.xlsx     # fictional input data
+├── database.xlsx     # fictional input data
 ├── etl_pipeline.py      # pipeline script
 └── README.md
 ```
