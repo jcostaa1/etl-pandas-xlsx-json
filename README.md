@@ -1,66 +1,66 @@
-# ETL com pandas: xlsx com coluna JSON → Parquet
+# ETL with pandas: xlsx with a JSON column → Parquet
 
-Pipeline em Python que lê uma planilha `.xlsx` com dados bagunçados, limpa e converte os tipos, separa uma coluna em JSON em colunas próprias e salva o resultado em Parquet.
+A Python pipeline that reads a messy `.xlsx` spreadsheet, cleans it and converts the data types, splits a JSON column into separate columns, and saves the result as Parquet.
 
-> Os dados do projeto são **fictícios**, criados só para demonstração.
+> The data in this project is **fictional**, created for demonstration purposes only.
 
-## Contexto
+## Context
 
-Este projeto nasceu de um **teste de caso técnico** que fiz ao me candidatar a uma vaga de Engenheira de Dados em 2023. O desafio era montar um ETL em Python (com pandas) a partir de uma planilha xlsx: ajustar a tipagem das colunas (números, datas, textos) e separar uma coluna em JSON em colunas próprias.
+This project started as a **technical case test** I took when applying for a Data Engineer position in 2023. The challenge was to build an ETL in Python (with pandas) from an xlsx spreadsheet: fix the column data types (numbers, dates, text) and split a JSON column into separate columns.
 
-Depois do processo, decidi **refazer o exercício do zero** e transformá-lo em um projeto de portfólio: reconstruí a planilha com dados fictícios, corrigi os pontos fracos da minha primeira versão (como a conversão de booleanos, o tratamento de datas e o encoding) e organizei o código em etapas separadas (Extract, Transform, Load), com logging e saída em Parquet.
+After the process, I decided to **redo the exercise from scratch** and turn it into a portfolio project: I rebuilt the spreadsheet with fictional data, fixed the weak points of my first version (such as boolean conversion, date handling, and encoding), and organized the code into separate stages (Extract, Transform, Load), with logging and Parquet output.
 
-Nenhum dado, enunciado ou arquivo da empresa original foi usado aqui.
+No data, assignment text, or files from the original company were used here.
 
-## O problema
+## The problem
 
-A planilha de entrada tinha:
+The input spreadsheet had:
 
-- **Encoding quebrado**: textos como `m√£e` e `Patr√≠cia` (UTF-8 lido como Mac Roman).
-- **Tipos errados**: tudo como texto, incluindo datas (`dd/mm/aaaa`), números, CPF e telefone.
-- **CPF e telefone formatados**: `123.456.789-00` e `(11) 99999-9999`.
-- **Coluna `metadados` em JSON malformado**, com aspas faltando nas chaves:
+- **Broken encoding**: text such as `m√£e` and `Patr√≠cia` (UTF-8 read as Mac Roman).
+- **Wrong types**: everything stored as text, including dates (`dd/mm/yyyy`), numbers, CPF (Brazilian tax ID), and phone numbers.
+- **Formatted CPF and phone numbers**: `123.456.789-00` and `(11) 99999-9999`.
+- **A `metadados` column with malformed JSON**, with missing quotes around the keys:
   `{questionario_enviado": "true", timestamp_envio": "2024-08-21 10:15:30"}`
 
-## O que o pipeline faz
+## What the pipeline does
 
-| Etapa | O que acontece |
+| Stage | What happens |
 |---|---|
-| **Extract** | Lê o xlsx com `dtype=str`, para o pandas não adivinhar tipos (e não perder zeros do CPF). |
-| **Transform** | Conserta o encoding, renomeia colunas para `snake_case`, converte números e datas, deixa CPF e telefone só com dígitos e expande o JSON em colunas. |
-| **Load** | Salva em Parquet, que é colunar, comprimido e preserva os tipos. |
+| **Extract** | Reads the xlsx with `dtype=str`, so pandas doesn't guess types (and doesn't drop the leading zeros of the CPF). |
+| **Transform** | Fixes the encoding, renames columns to `snake_case`, converts numbers and dates, keeps only the digits in CPF and phone, and expands the JSON into columns. |
+| **Load** | Saves to Parquet, which is columnar, compressed, and preserves data types. |
 
-### Decisões técnicas
+### Technical decisions
 
-- `pd.to_numeric(errors="coerce")` e `pd.to_datetime(errors="coerce")`: valores inválidos viram nulo em vez de quebrar o script, e a contagem de nulos é logada no final.
-- Datas com `format="%d/%m/%Y"` explícito, para evitar confusão entre dia e mês.
-- `parse_meta` tenta três formas de ler o JSON: `json.loads`, `ast.literal_eval` (aspas simples) e, por último, uma regex que conserta as aspas das chaves.
-- `pd.json_normalize` transforma os dicionários em colunas e também acha chaves ausentes (viram `NaN`).
-- CPF com `zfill(11)` para recuperar zeros à esquerda.
+- `pd.to_numeric(errors="coerce")` and `pd.to_datetime(errors="coerce")`: invalid values become null instead of breaking the script, and the null count is logged at the end.
+- Dates use an explicit `format="%d/%m/%Y"` to avoid confusion between day and month.
+- `parse_meta` tries three ways to read the JSON: `json.loads`, `ast.literal_eval` (single quotes), and, as a last resort, a regex that fixes the quotes around the keys.
+- `pd.json_normalize` turns the dictionaries into columns and also handles missing keys (they become `NaN`).
+- CPF uses `zfill(11)` to restore leading zeros.
 
-## Estrutura
+## Structure
 
 ```
 .
-├── dados_teste.xlsx     # dados fictícios de entrada
-├── etl_pipeline.py      # pipeline em script
+├── dados_teste.xlsx     # fictional input data
+├── etl_pipeline.py      # pipeline script
 └── README.md
 ```
 
-## Resultado
+## Result
 
-| Coluna | Tipo final |
+| Column | Final type |
 |---|---|
 | `nome`, `nome_mae` | string |
-| `score` | inteiro |
+| `score` | integer |
 | `peso` | decimal |
 | `data_nascimento`, `data_nascimento_mae` | datetime |
-| `telefone`, `cpf` | string (só dígitos) |
-| `questionario_enviado` | booleano |
+| `telefone`, `cpf` | string (digits only) |
+| `questionario_enviado` | boolean |
 | `timestamp_envio` | datetime |
 
-## Limitações conhecidas
+## Known limitations
 
-- A regex que conserta o JSON pode errar se um **valor** tiver o padrão `, palavra:` dentro do texto.
-- O conserto de encoding assume o caso UTF-8 lido como Mac Roman; outros casos exigiriam outra conversão.
-- CPF e telefone são dados pessoais. Em dados reais, o ideal seria mascarar ou aplicar hash antes de salvar (LGPD).
+- The regex that fixes the JSON may fail if a **value** contains the pattern `, word:` inside the text.
+- The encoding fix assumes the case of UTF-8 read as Mac Roman; other cases would require a different conversion.
+- CPF and phone numbers are personal data. With real data, the ideal approach would be to mask or hash them before saving (LGPD, Brazil's data protection law).
